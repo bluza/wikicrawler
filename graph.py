@@ -14,8 +14,25 @@ class Graph(object):
     def add(self,node1, node2):
         self.graph[node1].add(node2)
 
+    def write(self, path):
+        with open(path, 'w') as file:
+            for key, value in self.graph.items():
+                print ("Key: "+key+": \n")
+                file.write("Key: "+key+": ")
+                for val in value:
+                    print("\t"+val)
+                    file.write("\t"+val)
+                file.write(" \n")
+        print("File written.")
+
+    def readfromfile(self, path):
+        with open(path, 'r') as file:
+            pass
+
+
+
     def __str__(self):
-        return '{}({})'.format(self.__class__.__name__, dict(self.graph))
+        return '{}({} \n)'.format(self.__class__.__name__, dict(self.graph))
 
 #connections = [('A', 'B'), ('B', 'C'), ('B', 'D'),
 #                 ('C', 'D'), ('E', 'F'), ('F', 'C')]

@@ -1,6 +1,7 @@
 """
 
 """
+import json
 
 from bs4 import BeautifulSoup
 import requests
@@ -13,7 +14,12 @@ def get_links_from_hub(hub):
     :param hub: Link to a Wikipedia Hubpage
     :return: list of html <a> tags
     """
-    soup = BeautifulSoup(hub, 'html.parser')
+    wiki = "https://de.wikipedia.org"
+    root_hub_page = "/wiki/Spezial:Linkliste/"
+    root_hub_response = requests.get(wiki +root_hub_page +root)
+    hub = wiki+ root_hub_page + hub
+    html = root_hub_response.text
+    soup = BeautifulSoup(html, 'html.parser')
     return [link_a for link_a in soup.find(id="mw-whatlinkshere-list")]
 
 
@@ -45,7 +51,7 @@ def create_incoming_link_list(links):
             extractor = extract_links(text)
             hub_outgoing_link_list.append(extractor)
     return hub_outgoing_link_list
-
+'''
 def create_connections(hub, hub_outgoing_links):
     hub_connection = []
     for outgoing_link in hub_outgoing_links:
@@ -54,21 +60,38 @@ def create_connections(hub, hub_outgoing_links):
         #hub_connection.append(formater)
         hub_connection.append((hub,outgoing_link))
     return hub_connection
+'''
+
+def create_connections(hub, hub_outgoing_links):
+    hub_connection = []
+    for outgoing_link in hub_outgoing_links:
+        hub_connection.append((hub,outgoing_link))
+    return hub_connection
+
 
 link_search_tag = '"<ul id="mw-whatlinkshere-list">"'
 wiki = "https://de.wikipedia.org"
-root_hub_page = "/wiki/Spezial:Linkliste/Adolf_Hitler"
+root_hub_page = "/wiki/Spezial:Linkliste/"
 
-root_hub_response = requests.get(wiki + root_hub_page)
-html = root_hub_response.text
-links = get_links_from_hub(html)
+root= "Adolf_Hitler"
+
+links = get_links_from_hub(root)
 
 hub_link_list = create_incoming_link_list(links)
 graphlist = create_connections("wiki/Adolf_Hitler", hub_link_list)
 
+
+
 g = Graph(graphlist)
 
-print(g)
+for link in hub_link_list:
+    links= get_links_from_hub(link)
+    link_list=create_incoming_link_list(links)
+    graphlist = create_connections(link, link_list)
+    g.connection = graphlist
+    g.add_connection(g.connection)
 
+
+g.write("graph.txt")
 
 
